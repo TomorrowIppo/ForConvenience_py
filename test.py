@@ -1,23 +1,34 @@
-import torch
-from torch import nn
+import cv2
+import numpy as np
+
+digits = cv2.imread("digits.png", cv2.IMREAD_GRAYSCALE)
+test_digits = cv2.imread("test_digits.png", cv2.IMREAD_GRAYSCALE)
+
+rows = np.vsplit(digits, 50)
+cells = []
+for row in rows:
+    row_cells = np.hsplit(row, 50)
+    for cell in row_cells:
+        cell = cell.flatten()
+        cells.append(cell)
+cells = np.array(cells, dtype=np.float32)
+
+k = np.arange(10)
+cells_labels = np.repeat(k, 250)
 
 
-class CustomModel(nn.Module):
-    def __init__(self):
-        super(CustomModel, self).__init__()
-        self.layer = nn.Linear(2, 1)
+test_digits = np.vsplit(test_digits, 50)
+test_cells = []
+for d in test_digits:
+    d = d.flatten()
+    test_cells.append(d)
+test_cells = np.array(test_cells, dtype=np.float32)
 
-    def forward(self, x):
-        x = self.layer(x)
-        return x
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = CustomModel().to(device)
+# KNN
+knn = cv2.ml.KNearest_create()
+knn.train(cells, cv2.ml.ROW_SAMPLE, cells_labels)
+ret, result, neighbours, dist = knn.findNearest(test_cells, k=3)
 
-model_state_dict = torch.load("./last.pt", map_location=device)
-model.load_state_dict(model_state_dict)
 
-with torch.no_grad():
-    model.eval()
-    inputs = torch.FloatTensor([[1 ** 2, 1], [5 **2, 5], [11**2, 11]]).to(device)
-    outputs = model(inputs)
+print(result)
