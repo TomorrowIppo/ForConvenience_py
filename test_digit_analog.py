@@ -1,4 +1,6 @@
 import os
+import platform
+import time
 
 diagonal = [
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -45,18 +47,34 @@ diagonal_stack = [
 try:
     idx = 0
     count = 0
-    comand = 'clear'
+    command = ''
+    _os = platform.system()
+    if _os == 'Windows':
+        command = 'cls'
+    elif _os == 'Darwin':
+        command = 'clear'
+    else:
+        pass
+
     while True:
         del diagonal_stack[0]
-        if idx > 16:
+        if idx == 16:
             idx = 0
         diagonal_stack.append(diagonal[idx])
         idx += 1
         for i in diagonal_stack:
             for j in i:
-                print(j, end=' ')
+                _str = ''
+                if j == 1:
+                    _str = '\033[91m' + '1' + '\033[37m'
+                elif j == 0:
+                    _str = '\033[97m' + '0' + '\033[37m'
+
+                print(_str, end=' ')
             print()
-        os.system(command=comand)
+        time.sleep(0.1)
+        os.system(command=command)
+
 
 except KeyboardInterrupt:
     print('foo')
