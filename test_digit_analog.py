@@ -72,10 +72,9 @@ try:
 
                 print(_str, end=' ')
             print()
-        time.sleep(0.1)
+        time.sleep(0.5)
         os.system(command=command)
 
 
 except KeyboardInterrupt:
     print('foo')
-
